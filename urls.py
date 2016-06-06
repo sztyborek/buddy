@@ -10,7 +10,8 @@ urlpatterns = [
         name="about"),
 
     # Django Admin, use {% url 'admin:index' %}
-    url('admin/', include(admin.site.urls)),
+
+    url('^admin/', include(admin.site.urls)),
 
     # User management
     url(r'^users/', include("users.urls", namespace="users")),
