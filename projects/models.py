@@ -6,7 +6,7 @@ from users.models import Skill, User
 
 class Project(models.Model):
     users = models.ManyToManyField(User)
-    skills = models.ManyToManyField(Skill)
+    skills = models.ManyToManyField(Skill, blank=True)
     name = models.CharField(_("Name of the project"), max_length=255, unique=True)
     description = models.TextField()
     expiration_date = models.DateField()
