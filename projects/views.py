@@ -44,7 +44,7 @@ class ProjectCreateView(CreateView):
         else:
             context['subform'] = self.subform_class(queryset = Skill.objects.none())
         return context
-        
+
     def get_success_url(self):
         return reverse_lazy('projects:detail', args=(self.object.slug,)) 
 
@@ -74,7 +74,10 @@ class ProjectUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdateView, self).get_context_data(**kwargs)
-        context['subform'] = self.subform_class(queryset = self.get_object().skills.all())
+        if self.request.POST:
+            context['subform'] = self.subform_class(self.request.POST)
+        else:
+            context['subform'] = self.subform_class(queryset = self.get_object().skills.all())
         return context
 
     def get_success_url(self):
