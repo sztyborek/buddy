@@ -1,16 +1,19 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect
+
 from .models import Project
 from users.models import Skill
 from .forms import ProjectForm, SkillFormSet
-from django.http import HttpResponseRedirect
 
 
 class ProjectListView(ListView):
     model = Project
 
+
 class ProjectDetailView(DetailView):
     model = Project
+
 
 class ProjectCreateView(CreateView):
     model = Project
@@ -20,22 +23,22 @@ class ProjectCreateView(CreateView):
     def post(self, request, *args, **kwargs):
         self.object = None
         form = self.form_class(request.POST)
-        subform = self.subform_class(request.POST)
-        if form.is_valid() and subform.is_valid():
-            this_project = form.save(commit=False)
-            this_project.save()
-            for a_form in subform:
-                a_lang = a_form.cleaned_data.get('programming_lang')
-                if a_lang:
-                    a_lang = a_lang.lower()
-                    skill, created = Skill.objects.get_or_create(programming_lang=a_lang)
-                    this_project.skills.add(skill)
-            this_project.save()
-            self.object = Project.objects.get(slug=this_project.slug)
+        skill_subform = self.subform_class(request.POST)
+        if form.is_valid() and skill_subform.is_valid():
+            created_project = form.save(commit=False)
+            created_project.save()
+            for subform in skill_subform:
+                programming_lang = subform.cleaned_data.get('programming_lang')
+                if programming_lang:
+                    programming_lang = programming_lang.lower()
+                    skill, created = Skill.objects.get_or_create(programming_lang=programming_lang)
+                    created_project.skills.add(skill)
+            created_project.save()
+            self.object = Project.objects.get(slug=created_project.slug)
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
-                self.get_context_data(form=form, subform=subform))
+                self.get_context_data(form=form, subform=skill_subform))
 
     def get_context_data(self, **kwargs):
         context = super(ProjectCreateView, self).get_context_data(**kwargs)
@@ -48,6 +51,7 @@ class ProjectCreateView(CreateView):
     def get_success_url(self):
         return reverse_lazy('projects:detail', args=(self.object.slug,)) 
 
+
 class ProjectUpdateView(UpdateView):
     model = Project
     form_class = ProjectForm
@@ -56,21 +60,21 @@ class ProjectUpdateView(UpdateView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.form_class(request.POST, instance=self.object)
-        subform = self.subform_class(request.POST)
-        if form.is_valid() and subform.is_valid():
-            this_project = form.save(commit=False)
-            this_project.skills.clear()
-            for a_form in subform:
-                a_lang = a_form.cleaned_data.get('programming_lang')
-                if a_lang:
-                    a_lang = a_lang.lower()
-                    skill, created = Skill.objects.get_or_create(programming_lang=a_lang)
-                    this_project.skills.add(skill)
-            this_project.save()
+        skill_subform = self.subform_class(request.POST)
+        if form.is_valid() and skill_subform.is_valid():
+            updated_project = form.save(commit=False)
+            updated_project.skills.clear()
+            for subform in skill_subform:
+                programming_lang = subform.cleaned_data.get('programming_lang')
+                if programming_lang:
+                    programming_lang = programming_lang.lower()
+                    skill, created = Skill.objects.get_or_create(programming_lang=programming_lang)
+                    updated_project.skills.add(skill)
+            updated_project.save()
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(
-                self.get_context_data(form=form, subform=subform))
+                self.get_context_data(form=form, subform=skill_subform))
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdateView, self).get_context_data(**kwargs)
@@ -82,6 +86,7 @@ class ProjectUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('projects:detail', args=(self.object.slug,)) 
+
 
 class ProjectDeleteView(DeleteView):
     model = Project
