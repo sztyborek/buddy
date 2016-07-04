@@ -17,3 +17,6 @@ __pycache__
 
 #Project specific
 /media
+
+#VirtualEnv
+/env
