@@ -1,4 +1,10 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+    )
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 
@@ -31,7 +37,8 @@ class ProjectCreateView(CreateView):
                 programming_lang = subform.cleaned_data.get('programming_lang')
                 if programming_lang:
                     programming_lang = programming_lang.lower()
-                    skill, created = Skill.objects.get_or_create(programming_lang=programming_lang)
+                    skill, created = Skill.objects.get_or_create(
+                        programming_lang=programming_lang)
                     created_project.skills.add(skill)
             created_project.save()
             self.object = Project.objects.get(slug=created_project.slug)
@@ -45,11 +52,12 @@ class ProjectCreateView(CreateView):
         if self.request.POST:
             context['subform'] = self.subform_class(self.request.POST)
         else:
-            context['subform'] = self.subform_class(queryset = Skill.objects.none())
+            context['subform'] = self.subform_class(
+                queryset=Skill.objects.none())
         return context
 
     def get_success_url(self):
-        return reverse_lazy('projects:detail', args=(self.object.slug,)) 
+        return reverse_lazy('projects:detail', args=(self.object.slug,))
 
 
 class ProjectUpdateView(UpdateView):
@@ -68,7 +76,8 @@ class ProjectUpdateView(UpdateView):
                 programming_lang = subform.cleaned_data.get('programming_lang')
                 if programming_lang:
                     programming_lang = programming_lang.lower()
-                    skill, created = Skill.objects.get_or_create(programming_lang=programming_lang)
+                    skill, created = Skill.objects.get_or_create(
+                        programming_lang=programming_lang)
                     updated_project.skills.add(skill)
             updated_project.save()
             return HttpResponseRedirect(self.get_success_url())
@@ -81,11 +90,12 @@ class ProjectUpdateView(UpdateView):
         if self.request.POST:
             context['subform'] = self.subform_class(self.request.POST)
         else:
-            context['subform'] = self.subform_class(queryset = self.get_object().skills.all())
+            context['subform'] = self.subform_class(
+                queryset=self.get_object().skills.all())
         return context
 
     def get_success_url(self):
-        return reverse_lazy('projects:detail', args=(self.object.slug,)) 
+        return reverse_lazy('projects:detail', args=(self.object.slug,))
 
 
 class ProjectDeleteView(DeleteView):
